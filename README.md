@@ -1,7 +1,7 @@
-# 零基础从第一性原理探索人工智能 (从 3 个参数到深度学习与视觉识别)
+# 零基础从第一性原理探索人工智能 (从 3 个参数到深度学习、视觉识别与生成式大模型)
 
 本项目为配套教程文档 [**`AI训练入门.md`**](./AI训练入门.md) 的完整工程实现代码库。
-全项目严格遵循 **KISS 原则（Keep It Simple, Stupid）**，抛弃一切虚无缥缈的技术炒作，从最基础的微积分、线性代数与张量运算出发，由浅入深构建了四个极简、自包含、可完全独立运行的经典 AI 范式。
+全项目严格遵循 **KISS 原则（Keep It Simple, Stupid）**，抛弃一切虚无缥缈的技术炒作，从最基础的微积分、线性代数与张量运算出发，由浅入深构建了五个极简、自包含、可完全独立运行的经典 AI 范式。
 
 ---
 
@@ -34,20 +34,30 @@
 │   ├── predict.py            # 单句评价情感极性判定与数学打分细节拆解
 │   └── README.md             # 案例三实操手册
 │
-└── 04_mnist_digits/          # 【案例四】从语言到视觉：极简手写数字 0~9 卷积神经网络识别器
-    ├── data/                 # MNIST 轻量子集 (.pt 连续张量归档)
-    ├── model.py              # 双层卷积网络 (DigitCNN) + Bounding Box 居中预处理
-    ├── train.py              # Adam 优化器 + CrossEntropyLoss (普通 CPU 9 秒飞速收敛)
-    ├── test.py               # 500 张独立测试集综合评估 (准确率达 95.8%+)
-    ├── predict.py            # 任意长宽比手写图片预测 + 0~9 概率分布柱状图可视化
-    ├── best_model.pt         # 训练完成的模型权重快照
-    ├── sample_digit*.png     # 示例手写测试图片资产
-    └── README.md             # 案例四实操手册
+├── 04_mnist_digits/          # 【案例四】从语言到视觉：极简手写数字 0~9 卷积神经网络识别器
+│   ├── data/                 # MNIST 轻量子集 (.pt 连续张量归档)
+│   ├── model.py              # 双层卷积网络 (DigitCNN) + Bounding Box 居中预处理
+│   ├── train.py              # Adam 优化器 + CrossEntropyLoss (普通 CPU 9 秒飞速收敛)
+│   ├── test.py               # 500 张独立测试集综合评估 (准确率达 95.8%+)
+│   ├── predict.py            # 任意长宽比手写图片预测 + 0~9 概率分布柱状图可视化
+│   ├── best_model.pt         # 训练完成的模型权重快照
+│   ├── sample_digit*.png     # 示例手写测试图片资产
+│   └── README.md             # 案例四实操手册
+│
+└── 05_baby_gpt/              # 【案例五】从判别到生成：极简字符级因果自回归模型 (Baby GPT 古诗词生成器)
+    ├── data/                 # 经典五言绝句 60 首语料库 (李白、杜甫、王维名篇)
+    ├── model.py              # 字符级分词器 + 因果自注意力掩码 + 2 层 Transformer 解码块 (BabyGPT)
+    ├── train.py              # 极速因果训练脚本 (Next-Token 预测，普通 CPU 10 秒飞速收敛)
+    ├── test.py               # 困惑度 (PPL) 与古诗文字接龙批量测试
+    ├── predict.py            # 单提示词续写、终端交互即兴创作与流式打字机输出
+    ├── best_model.pt         # 训练好的模型权重快照 (~5.4万参数)
+    ├── vocab.json            # 字符级字典映射
+    └── README.md             # 案例五实操手册
 ```
 
 ---
 
-## 四大案例的核心对比与技术跨越
+## 五大案例的核心对比与技术跨越
 
 | 演进阶段 | 对应目录 | 输入类型 | 业务任务 | 核心网络结构 | 损失函数 | 优化器 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -55,6 +65,7 @@
 | **阶段 2：二分类决策** | [`02_fraud_detection`](./02_fraud_detection/) | 2 个风控特征 | 判定交易是正常放行还是异常拦截 | `Linear(2, 1) + Sigmoid` | `BCELoss` | `SGD` |
 | **阶段 3：自然语言处理** | [`03_takeout_sentiment`](./03_takeout_sentiment/) | 中文文本句子 | 判定外卖评价是好评还是差评 | `词袋编码 + Linear(6, 1) + Sigmoid` | `BCELoss` | `SGD` |
 | **阶段 4：计算机视觉** | [`04_mnist_digits`](./04_mnist_digits/) | $28 \times 28$ 图像 | 识别手写数字 $0 \sim 9$ (10 分类) | `DigitCNN (双层卷积+池化+Linear)` | `CrossEntropyLoss` | `Adam` |
+| **阶段 5：生成式大语言模型** | [`05_baby_gpt`](./05_baby_gpt/) | 提示词文本序列 | 给定前缀自回归生成五言绝句 (Next-Token) | `BabyGPT (因果多头自注意力 + 2层解码块)` | `CrossEntropyLoss` | `Adam` |
 
 ---
 
@@ -62,17 +73,21 @@
 
 本项目已通过 `uv` 虚拟环境统一管理依赖，全局仅依赖基础的深度学习与图像处理包：
 ```bash
-# 激活环境并进入任意案例目录体验，例如进入案例四：
-cd 04_mnist_digits
+# 激活环境并进入任意案例目录体验，例如进入案例五 (Baby GPT)：
+cd 05_baby_gpt
 
-# 运行训练
+# 运行极速训练 (~10 秒完成)
 python train.py
 
-# 运行批量测试
+# 运行困惑度评估与文字接龙测试
 python test.py
 
-# 运行单图预测
-python predict.py test.png
+# 单提示词即兴写诗
+python predict.py "春"
+python predict.py "床前"
+
+# 开启终端交互式写诗模式
+python predict.py -i
 ```
 
 详细的原理剖析、数学推导与进阶排错哲学，请完整阅读核心讲义 [**`AI训练入门.md`**](./AI训练入门.md)！
